@@ -111,8 +111,17 @@ export async function extractPageContent() {
  * Auto-resize textarea based on content
  */
 export function autoResizeTextarea(textarea) {
+    const maxHeight = 150;
     textarea.style.height = 'auto';
-    textarea.style.height = Math.min(textarea.scrollHeight, 150) + 'px';
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = newHeight + 'px';
+
+    // Toggle overflow class based on whether content exceeds max height
+    if (textarea.scrollHeight > maxHeight) {
+        textarea.classList.add('has-overflow');
+    } else {
+        textarea.classList.remove('has-overflow');
+    }
 }
 
 /**
