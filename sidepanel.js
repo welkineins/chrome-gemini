@@ -9,6 +9,7 @@ class SidePanelApp {
     constructor() {
         this.chatManager = new ChatManager();
         this.elements = {};
+        this.currentPageInfo = null;
     }
 
     /**
@@ -20,6 +21,45 @@ class SidePanelApp {
 
         const settings = await this.chatManager.init();
         this.updateUIFromSettings(settings);
+
+        // Update page info on init and tab changes
+        this.updatePageInfo();
+        chrome.tabs.onActivated?.addListener(() => this.updatePageInfo());
+        chrome.tabs.onUpdated?.addListener((tabId, changeInfo) => {
+            if (changeInfo.status === 'complete') this.updatePageInfo();
+        });
+    }
+
+    /**
+     * Update page info display (favicon + title)
+     */
+    async updatePageInfo() {
+        try {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            if (!tab) return;
+
+            const favicon = this.elements.pageFavicon;
+            const title = this.elements.pageTitle;
+
+            if (tab.favIconUrl) {
+                favicon.src = tab.favIconUrl;
+                favicon.style.display = 'block';
+            } else {
+                favicon.src = '';
+                favicon.style.display = 'none';
+            }
+
+            title.textContent = tab.title || 'Include page content';
+            title.title = tab.title || '';
+
+            this.currentPageInfo = {
+                title: tab.title,
+                url: tab.url,
+                favIconUrl: tab.favIconUrl
+            };
+        } catch (error) {
+            console.error('Failed to update page info:', error);
+        }
     }
 
     /**
@@ -71,7 +111,11 @@ class SidePanelApp {
             autoIncludePage: document.getElementById('auto-include-page'),
 
             // Theme
-            themeRadios: document.querySelectorAll('input[name="theme"]')
+            themeRadios: document.querySelectorAll('input[name="theme"]'),
+
+            // Page info
+            pageFavicon: document.getElementById('page-favicon'),
+            pageTitle: document.getElementById('page-title')
         };
     }
 
@@ -206,26 +250,51 @@ class SidePanelApp {
     }
 
     /**
-     * Render model list
+     * Render model list with reorder buttons
      */
     renderModelList(backend, models) {
         const container = this.elements[`${backend}Models`];
         container.innerHTML = '';
 
-        for (const model of models) {
+        models.forEach((model, index) => {
             const item = document.createElement('div');
             item.className = 'model-item';
             item.innerHTML = `
-        <span>${model}</span>
-        <button data-model="${model}" title="Remove">&times;</button>
-      `;
+                <span class="model-item-name">${model}</span>
+                <div class="model-item-actions">
+                    <button class="move-up-btn" title="Move up" ${index === 0 ? 'disabled' : ''}>↑</button>
+                    <button class="move-down-btn" title="Move down" ${index === models.length - 1 ? 'disabled' : ''}>↓</button>
+                    <button class="delete-btn" title="Remove">×</button>
+                </div>
+            `;
 
-            item.querySelector('button').addEventListener('click', () => {
+            item.querySelector('.move-up-btn').addEventListener('click', () => {
+                this.moveModel(backend, index, -1);
+            });
+            item.querySelector('.move-down-btn').addEventListener('click', () => {
+                this.moveModel(backend, index, 1);
+            });
+            item.querySelector('.delete-btn').addEventListener('click', () => {
                 this.removeModel(backend, model);
             });
 
             container.appendChild(item);
-        }
+        });
+    }
+
+    /**
+     * Move model in list
+     */
+    moveModel(backend, index, direction) {
+        const settings = { ...this.chatManager.settings };
+        const models = [...settings[backend].models];
+        const newIndex = index + direction;
+
+        if (newIndex < 0 || newIndex >= models.length) return;
+
+        [models[index], models[newIndex]] = [models[newIndex], models[index]];
+        settings[backend].models = models;
+        this.renderModelList(backend, models);
     }
 
     /**
@@ -401,9 +470,49 @@ class SidePanelApp {
     addMessageToUI(role, content) {
         const message = document.createElement('div');
         message.className = `message ${role}`;
-        message.innerHTML = `<div class="message-content">${markdownToHtml(content)}</div>`;
+        message.dataset.content = content; // Store original content for copying
+        message.innerHTML = `
+            <div class="message-content">${markdownToHtml(content)}</div>
+            <div class="message-actions">
+                <button class="copy-button" title="Copy message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    Copy
+                </button>
+            </div>
+        `;
+
+        message.querySelector('.copy-button').addEventListener('click', (e) => {
+            this.copyMessage(e.currentTarget, content);
+        });
+
         this.elements.chatMessages.appendChild(message);
         this.scrollToBottom();
+    }
+
+    /**
+     * Copy message content to clipboard
+     */
+    async copyMessage(button, content) {
+        try {
+            await navigator.clipboard.writeText(content);
+            button.classList.add('copied');
+            const originalHtml = button.innerHTML;
+            button.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Copied!
+            `;
+            setTimeout(() => {
+                button.classList.remove('copied');
+                button.innerHTML = originalHtml;
+            }, 2000);
+        } catch (error) {
+            console.error('Failed to copy:', error);
+        }
     }
 
     /**
@@ -413,20 +522,35 @@ class SidePanelApp {
         const container = document.createElement('div');
         container.className = 'message assistant';
         container.innerHTML = `
-      <div class="thinking-section">
-        <button class="thinking-toggle">
-          <span class="chevron">▼</span>
-          <span>Thinking...</span>
-        </button>
-        <div class="thinking-content"></div>
-      </div>
-      <div class="response-content message-content"></div>
-      <div class="loading-indicator">
-        <div class="dot"></div>
-        <div class="dot"></div>
-        <div class="dot"></div>
-      </div>
-    `;
+            <div class="thinking-section">
+                <button class="thinking-toggle">
+                    <span class="chevron">▼</span>
+                    <span>Thinking...</span>
+                </button>
+                <div class="thinking-content"></div>
+            </div>
+            <div class="response-content message-content"></div>
+            <div class="message-actions">
+                <button class="copy-button" title="Copy message">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    Copy
+                </button>
+            </div>
+            <div class="loading-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        `;
+
+        // Copy button for assistant
+        container.querySelector('.copy-button').addEventListener('click', (e) => {
+            const responseContent = container.querySelector('.response-content');
+            this.copyMessage(e.currentTarget, responseContent.textContent);
+        });
 
         // Toggle thinking visibility
         const toggle = container.querySelector('.thinking-toggle');
