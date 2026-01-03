@@ -11,7 +11,7 @@ describe('SettingsManager', () => {
             expect(defaultSettings.backendType).toBe('gemini');
             expect(defaultSettings.gemini).toBeDefined();
             expect(defaultSettings.openai).toBeDefined();
-            expect(defaultSettings.gemini.models).toContain('gemini-1.5-pro');
+            expect(defaultSettings.gemini.models).toContain('gemini-3-pro-preview');
         });
     });
 
@@ -24,7 +24,7 @@ describe('SettingsManager', () => {
             const settings = await SettingsManager.load();
 
             expect(settings.backendType).toBe('gemini');
-            expect(settings.gemini.models).toContain('gemini-1.5-pro');
+            expect(settings.gemini.models).toContain('gemini-3-pro-preview');
         });
 
         it('should merge stored settings with defaults', async () => {
@@ -48,7 +48,7 @@ describe('SettingsManager', () => {
 
             const settings = await SettingsManager.load();
 
-            expect(settings.currentModel).toBe('gemini-1.5-pro');
+            expect(settings.currentModel).toBe('gemini-3-pro-preview');
         });
     });
 
@@ -114,7 +114,7 @@ describe('SettingsManager', () => {
 
             const config = SettingsManager.getBackendConfig(settings);
 
-            expect(config.model).toBe('gemini-1.5-pro');
+            expect(config.model).toBe('gemini-3-pro-preview');
         });
     });
 
