@@ -3,6 +3,7 @@
  */
 export const defaultSettings = {
     backendType: 'gemini',
+    theme: 'auto', // 'light', 'dark', 'auto'
     gemini: {
         apiUrl: 'https://generativelanguage.googleapis.com/v1beta',
         apiKey: '',

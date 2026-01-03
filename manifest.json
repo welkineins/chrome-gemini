@@ -1,27 +1,34 @@
 {
-  "manifest_version": 3,
-  "name": "Gemini Side Panel",
-  "version": "1.0.0",
-  "description": "Chat with AI in Chrome's side panel - Supports Gemini & OpenAI APIs",
-  "permissions": ["sidePanel", "activeTab", "scripting", "storage"],
-  "host_permissions": ["<all_urls>"],
-  "side_panel": {
-    "default_path": "sidepanel.html"
-  },
-  "action": {
-    "default_title": "Open AI Chat",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
+    "manifest_version": 3,
+    "name": "Gemini Side Panel",
+    "version": "1.1.0",
+    "description": "Chat with AI in Chrome's side panel - Supports Gemini & OpenAI APIs",
+    "permissions": [
+        "sidePanel",
+        "activeTab",
+        "scripting",
+        "storage"
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
+    "side_panel": {
+        "default_path": "sidepanel.html"
+    },
+    "action": {
+        "default_title": "Open AI Chat",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "background": {
+        "service_worker": "background.js"
+    },
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
     }
-  },
-  "background": {
-    "service_worker": "background.js"
-  },
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
-  }
 }

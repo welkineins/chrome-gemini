@@ -68,7 +68,10 @@ class SidePanelApp {
             systemPrompt: document.getElementById('system-prompt'),
             enableSearch: document.getElementById('enable-search'),
             includeThinking: document.getElementById('include-thinking'),
-            autoIncludePage: document.getElementById('auto-include-page')
+            autoIncludePage: document.getElementById('auto-include-page'),
+
+            // Theme
+            themeRadios: document.querySelectorAll('input[name="theme"]')
         };
     }
 
@@ -132,6 +135,13 @@ class SidePanelApp {
     }
 
     /**
+     * Apply theme to document
+     */
+    applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+
+    /**
      * Update UI from settings
      */
     updateUIFromSettings(settings) {
@@ -140,6 +150,11 @@ class SidePanelApp {
 
         // Include page checkbox
         this.elements.includePage.checked = settings.autoIncludePage;
+
+        // Apply theme
+        this.applyTheme(settings.theme || 'auto');
+        const themeRadio = document.querySelector(`input[name="theme"][value="${settings.theme || 'auto'}"]`);
+        if (themeRadio) themeRadio.checked = true;
 
         // Settings form
         this.elements.geminiApiUrl.value = settings.gemini.apiUrl;
@@ -266,8 +281,11 @@ class SidePanelApp {
         const openaiModels = Array.from(this.elements.openaiModels.querySelectorAll('.model-item span'))
             .map(span => span.textContent);
 
+        const theme = document.querySelector('input[name="theme"]:checked')?.value || 'auto';
+
         const newSettings = {
             backendType,
+            theme,
             gemini: {
                 apiUrl: this.elements.geminiApiUrl.value.trim(),
                 apiKey: this.elements.geminiApiKey.value,
@@ -302,6 +320,7 @@ class SidePanelApp {
         try {
             await this.chatManager.updateSettings(newSettings);
             this.updateModelSelect(newSettings);
+            this.applyTheme(theme);
             this.closeSettings();
         } catch (error) {
             this.elements.settingsError.textContent = error.message;
