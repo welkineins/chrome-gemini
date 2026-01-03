@@ -197,7 +197,7 @@ describe('SettingsManager', () => {
     describe('validateApiUrl', () => {
         it('should validate correct URLs', () => {
             expect(SettingsManager.validateApiUrl('https://api.example.com').valid).toBe(true);
-            expect(SettingsManager.validateApiUrl('http://localhost:11434').valid).toBe(true);
+            expect(SettingsManager.validateApiUrl('http://localhost:8045').valid).toBe(true);
             expect(SettingsManager.validateApiUrl('http://192.168.1.100:8080/v1').valid).toBe(true);
         });
 
@@ -248,7 +248,7 @@ describe('SettingsManager', () => {
             const settings = {
                 backendType: 'openai',
                 openai: {
-                    apiUrl: 'http://localhost:11434/v1',
+                    apiUrl: 'http://localhost:8045/v1',
                     apiKey: ''
                 }
             };

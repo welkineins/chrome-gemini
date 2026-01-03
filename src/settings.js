@@ -10,9 +10,16 @@ export const defaultSettings = {
         models: ['gemini-3-pro-preview', 'gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro']
     },
     openai: {
-        apiUrl: 'http://localhost:11434/v1',
+        apiUrl: 'http://localhost:8045/v1',
         apiKey: '',
-        models: ['llama3', 'codellama', 'mistral']
+        models: [
+            'gemini-3-flash',
+            'gemini-3-pro-high',
+            'gemini-3-pro-low',
+            'claude-sonnet-4-5',
+            'claude-sonnet-4-5-thinking',
+            'claude-opus-4-5-thinking'
+        ]
     },
     currentModel: '',
     systemPrompt: '',
