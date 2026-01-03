@@ -453,7 +453,13 @@ class SidePanelApp {
 
         } catch (error) {
             console.error('Error sending message:', error);
-            this.updateResponseContent(assistantContainer, `Error: ${error.message}`);
+
+            let errorMessage = `Error: ${error.message}`;
+            if (error.message.includes('unregistered callers') || error.message.includes('API key')) {
+                errorMessage += '\n\n💡 Tip: Please check your API Key in settings.';
+            }
+
+            this.updateResponseContent(assistantContainer, errorMessage);
         }
 
         // Remove loading indicator
