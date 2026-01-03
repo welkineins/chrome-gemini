@@ -102,6 +102,11 @@ export async function extractPageContent() {
 
         return result?.[0]?.result || null;
     } catch (error) {
+        // Ignore errors for restricted pages (e.g. Chrome Web Store, chrome:// pages)
+        if (error.message && error.message.includes('cannot be scripted')) {
+            // Silently ignore restricted pages
+            return null;
+        }
         console.error('Failed to extract page content:', error);
         return null;
     }
