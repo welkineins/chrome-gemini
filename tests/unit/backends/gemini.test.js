@@ -9,7 +9,7 @@ describe('GeminiBackend', () => {
         backend = new GeminiBackend({
             apiUrl: 'https://generativelanguage.googleapis.com/v1beta',
             apiKey: 'test-api-key',
-            model: 'gemini-2.5-flash'
+            model: 'gemini-1.5-pro'
         });
     });
 
@@ -21,7 +21,7 @@ describe('GeminiBackend', () => {
         it('should initialize with config', () => {
             expect(backend.apiUrl).toBe('https://generativelanguage.googleapis.com/v1beta');
             expect(backend.apiKey).toBe('test-api-key');
-            expect(backend.model).toBe('gemini-2.5-flash');
+            expect(backend.model).toBe('gemini-1.5-pro');
         });
     });
 
@@ -122,7 +122,7 @@ describe('GeminiBackend', () => {
             await backend.streamChat([{ role: 'user', content: 'Hi' }]).next();
 
             expect(fetch).toHaveBeenCalledWith(
-                'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse',
+                'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:streamGenerateContent?alt=sse',
                 expect.objectContaining({
                     method: 'POST',
                     headers: expect.objectContaining({

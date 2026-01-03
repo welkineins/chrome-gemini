@@ -7,10 +7,9 @@ A Chrome extension with a side panel for chatting with AI models. Supports **Gem
 - 💬 **Side Panel Chat** - Chat with AI directly in Chrome
 - 🔄 **Multi-Backend** - Support for Gemini API and OpenAI-compatible APIs
 - 🌐 **Local LLM Support** - Works with Ollama, LM Studio, and other local servers
-- 💭 **Thinking Mode** - Display model's reasoning process (Gemini)
-- 🔍 **Search Grounding** - Web search integration (Gemini)
-- 📄 **Page Context** - Include current tab content in prompts
-- 🎨 **Dark Theme** - Modern, beautiful UI
+- 🎨 **Theme Support** - Light, Dark, and Auto modes with beautiful UI
+- 🧠 **Smart Context** - Include current page content with favicon & title preview
+- ⚡ **Enhanced UX** - Thinking mode, search grounding, copy messages, and model management
 
 ## Installation
 

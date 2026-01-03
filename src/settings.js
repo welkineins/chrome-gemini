@@ -7,7 +7,7 @@ export const defaultSettings = {
     gemini: {
         apiUrl: 'https://generativelanguage.googleapis.com/v1beta',
         apiKey: '',
-        models: ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-2.0-flash']
+        models: ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash-exp']
     },
     openai: {
         apiUrl: 'http://localhost:11434/v1',

@@ -11,7 +11,7 @@ describe('SettingsManager', () => {
             expect(defaultSettings.backendType).toBe('gemini');
             expect(defaultSettings.gemini).toBeDefined();
             expect(defaultSettings.openai).toBeDefined();
-            expect(defaultSettings.gemini.models).toContain('gemini-2.5-flash');
+            expect(defaultSettings.gemini.models).toContain('gemini-1.5-pro');
         });
     });
 
@@ -24,7 +24,7 @@ describe('SettingsManager', () => {
             const settings = await SettingsManager.load();
 
             expect(settings.backendType).toBe('gemini');
-            expect(settings.gemini.models).toContain('gemini-2.5-flash');
+            expect(settings.gemini.models).toContain('gemini-1.5-pro');
         });
 
         it('should merge stored settings with defaults', async () => {
@@ -48,7 +48,7 @@ describe('SettingsManager', () => {
 
             const settings = await SettingsManager.load();
 
-            expect(settings.currentModel).toBe('gemini-2.5-flash');
+            expect(settings.currentModel).toBe('gemini-1.5-pro');
         });
     });
 
@@ -114,7 +114,7 @@ describe('SettingsManager', () => {
 
             const config = SettingsManager.getBackendConfig(settings);
 
-            expect(config.model).toBe('gemini-2.5-flash');
+            expect(config.model).toBe('gemini-1.5-pro');
         });
     });
 
