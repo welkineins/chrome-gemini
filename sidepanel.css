@@ -89,6 +89,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    min-width: 280px;
 }
 
 /* Header */
@@ -499,14 +500,14 @@ body {
 
 /* Inline Model Select */
 .inline-model-select {
-    background: var(--bg-tertiary);
+    background: transparent;
     border: none;
     border-radius: 16px;
     padding: 6px 12px;
     color: var(--text-secondary);
     font-size: 12px;
     cursor: pointer;
-    max-width: 120px;
+    max-width: 140px;
     text-overflow: ellipsis;
 }
 
@@ -517,12 +518,12 @@ body {
 
 /* Send Button */
 .send-button {
-    background: var(--accent-gradient);
+    background: transparent;
     border: none;
     border-radius: 50%;
     width: 36px;
     height: 36px;
-    color: white;
+    color: var(--accent-primary);
     cursor: pointer;
     transition: var(--transition);
     display: flex;
@@ -532,12 +533,12 @@ body {
 }
 
 .send-button:hover:not(:disabled) {
-    transform: scale(1.05);
-    box-shadow: var(--shadow-md);
+    color: var(--accent-secondary);
+    transform: scale(1.1);
 }
 
 .send-button:disabled {
-    opacity: 0.5;
+    opacity: 0.3;
     cursor: not-allowed;
 }
 
@@ -615,36 +616,34 @@ body {
     display: flex;
     gap: 4px;
     margin-top: 8px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-}
-
-.message:hover .message-actions {
-    opacity: 1;
 }
 
 .copy-button {
     display: flex;
     align-items: center;
-    gap: 4px;
     background: transparent;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    padding: 4px 8px;
-    color: var(--text-secondary);
-    font-size: 12px;
+    border: none;
+    padding: 4px;
+    color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     transition: var(--transition);
 }
 
 .copy-button:hover {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .copy-button.copied {
     color: var(--success-color);
-    border-color: var(--success-color);
+}
+
+/* AI message copy button uses different colors */
+.message.assistant .copy-button {
+    color: var(--text-muted);
+}
+
+.message.assistant .copy-button:hover {
+    color: var(--text-primary);
 }
 
 /* Model Reorder Buttons */

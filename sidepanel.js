@@ -137,7 +137,8 @@ class SidePanelApp {
         });
 
         this.elements.messageInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            // Don't send during CJK IME composition
+            if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
                 e.preventDefault();
                 this.sendMessage();
             }
@@ -596,7 +597,6 @@ class SidePanelApp {
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                     </svg>
-                    Copy
                 </button>
             </div>
         `;
@@ -640,11 +640,11 @@ class SidePanelApp {
         container.className = 'message assistant';
         container.innerHTML = `
             <div class="thinking-section">
-                <button class="thinking-toggle">
+                <button class="thinking-toggle collapsed">
                     <span class="chevron">▼</span>
                     <span>Thinking...</span>
                 </button>
-                <div class="thinking-content"></div>
+                <div class="thinking-content hidden"></div>
             </div>
             <div class="response-content message-content"></div>
             <div class="message-actions">
@@ -653,7 +653,6 @@ class SidePanelApp {
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                     </svg>
-                    Copy
                 </button>
             </div>
             <div class="loading-indicator">
