@@ -13,9 +13,7 @@
         <!-- Header -->
         <header class="header">
             <div class="header-left">
-                <select id="model-select" class="model-select">
-                    <option value="">Select Model</option>
-                </select>
+                <span class="app-title">Gemini Chat</span>
             </div>
             <div class="header-right">
                 <button id="new-chat-button" class="icon-button" title="New Chat">
@@ -44,22 +42,47 @@
 
         <!-- Input Area -->
         <footer class="input-area">
-            <div class="input-options">
-                <label class="page-context-label" id="page-context-label"
-                    title="Include current page content in your message">
-                    <input type="checkbox" id="include-page" checked>
-                    <img id="page-favicon" class="page-favicon" src="" alt="" />
-                    <span id="page-title" class="page-title">Include page content</span>
-                </label>
+            <div class="input-box">
+                <!-- Image Preview Area -->
+                <div id="image-preview-area" class="image-preview-area hidden"></div>
+
+                <!-- Textarea -->
+                <textarea id="message-input" placeholder="問問 Gemini..." rows="1"></textarea>
+
+                <!-- Bottom Controls -->
+                <div class="input-controls">
+                    <div class="input-controls-left">
+                        <!-- Add Image Button -->
+                        <button id="add-image-button" class="control-button" title="Add image">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                        <!-- Page Context -->
+                        <label class="page-context-toggle" id="page-context-label" title="Include current page content">
+                            <input type="checkbox" id="include-page" checked>
+                            <img id="page-favicon" class="page-favicon" src="" alt="" />
+                            <span id="page-title" class="page-title">網頁</span>
+                        </label>
+                    </div>
+                    <div class="input-controls-right">
+                        <!-- Model Select -->
+                        <select id="model-select" class="inline-model-select">
+                            <option value="">Select Model</option>
+                        </select>
+                        <!-- Send Button -->
+                        <button id="send-button" class="send-button" title="Send message" disabled>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div class="input-container">
-                <textarea id="message-input" placeholder="Type your message..." rows="1"></textarea>
-                <button id="send-button" class="send-button" title="Send message" disabled>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-                    </svg>
-                </button>
-            </div>
+            <!-- Hidden file input -->
+            <input type="file" id="image-file-input" accept="image/*" multiple hidden>
         </footer>
 
         <!-- Settings Modal -->

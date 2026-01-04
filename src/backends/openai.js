@@ -36,9 +36,33 @@ export class OpenAIBackend extends AIBackend {
      * Build request body
      */
     buildRequestBody(messages, options) {
+        const convertedMessages = this.convertMessages(messages, options.systemPrompt);
+
+        // Add images to the last user message if present
+        if (options.images && options.images.length > 0 && convertedMessages.length > 0) {
+            const lastMsg = convertedMessages[convertedMessages.length - 1];
+            if (lastMsg.role === 'user') {
+                // Convert to content array format for vision models
+                const contentArray = [
+                    { type: 'text', text: lastMsg.content }
+                ];
+
+                for (const img of options.images) {
+                    contentArray.push({
+                        type: 'image_url',
+                        image_url: {
+                            url: img.data // data URL is supported
+                        }
+                    });
+                }
+
+                lastMsg.content = contentArray;
+            }
+        }
+
         const body = {
             model: this.model,
-            messages: this.convertMessages(messages, options.systemPrompt),
+            messages: convertedMessages,
             stream: true
         };
 

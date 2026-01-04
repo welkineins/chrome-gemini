@@ -106,7 +106,8 @@ User Question: ${userMessage}`;
             const streamOptions = {
                 systemPrompt: this.settings.systemPrompt,
                 enableSearch: this.settings.enableSearch,
-                includeThinking: this.settings.includeThinking
+                includeThinking: this.settings.includeThinking,
+                images: options.images || []
             };
 
             // Stream the response

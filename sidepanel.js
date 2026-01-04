@@ -10,6 +10,7 @@ class SidePanelApp {
         this.chatManager = new ChatManager();
         this.elements = {};
         this.currentPageInfo = null;
+        this.pendingImages = []; // Store images to be sent with message
     }
 
     /**
@@ -115,7 +116,13 @@ class SidePanelApp {
 
             // Page info
             pageFavicon: document.getElementById('page-favicon'),
-            pageTitle: document.getElementById('page-title')
+            pageTitle: document.getElementById('page-title'),
+
+            // Image handling
+            inputBox: document.querySelector('.input-box'),
+            addImageButton: document.getElementById('add-image-button'),
+            imageFileInput: document.getElementById('image-file-input'),
+            imagePreviewArea: document.getElementById('image-preview-area')
         };
     }
 
@@ -176,6 +183,105 @@ class SidePanelApp {
         this.elements.settingsModal.addEventListener('click', (e) => {
             if (e.target === this.elements.settingsModal) this.closeSettings();
         });
+
+        // Image handling
+        this.elements.addImageButton.addEventListener('click', () => {
+            this.elements.imageFileInput.click();
+        });
+
+        this.elements.imageFileInput.addEventListener('change', (e) => {
+            this.handleImageFiles(e.target.files);
+            e.target.value = ''; // Reset for same file selection
+        });
+
+        // Drag and drop
+        this.elements.inputBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            this.elements.inputBox.classList.add('drag-over');
+        });
+
+        this.elements.inputBox.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            this.elements.inputBox.classList.remove('drag-over');
+        });
+
+        this.elements.inputBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            this.elements.inputBox.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            this.handleImageFiles(files);
+        });
+
+        // Paste image
+        this.elements.messageInput.addEventListener('paste', (e) => {
+            const items = Array.from(e.clipboardData.items);
+            const imageItems = items.filter(item => item.type.startsWith('image/'));
+            if (imageItems.length > 0) {
+                e.preventDefault();
+                const files = imageItems.map(item => item.getAsFile());
+                this.handleImageFiles(files);
+            }
+        });
+    }
+
+    /**
+     * Handle image files for attachment
+     */
+    handleImageFiles(files) {
+        const fileArray = Array.from(files);
+
+        for (const file of fileArray) {
+            if (!file.type.startsWith('image/')) continue;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.pendingImages.push({
+                    name: file.name,
+                    type: file.type,
+                    data: e.target.result // base64 data URL
+                });
+                this.renderImagePreviews();
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    /**
+     * Render image previews
+     */
+    renderImagePreviews() {
+        const area = this.elements.imagePreviewArea;
+        area.innerHTML = '';
+
+        if (this.pendingImages.length === 0) {
+            area.classList.add('hidden');
+            return;
+        }
+
+        area.classList.remove('hidden');
+
+        this.pendingImages.forEach((img, index) => {
+            const item = document.createElement('div');
+            item.className = 'image-preview-item';
+            item.innerHTML = `
+                <img src="${img.data}" alt="${img.name}">
+                <button class="remove-image" title="Remove">×</button>
+            `;
+
+            item.querySelector('.remove-image').addEventListener('click', () => {
+                this.removeImage(index);
+            });
+
+            area.appendChild(item);
+        });
+    }
+
+    /**
+     * Remove image from pending list
+     */
+    removeImage(index) {
+        this.pendingImages.splice(index, 1);
+        this.renderImagePreviews();
     }
 
     /**
@@ -422,6 +528,11 @@ class SidePanelApp {
             pageContent = await extractPageContent();
         }
 
+        // Collect images to send
+        const images = [...this.pendingImages];
+        this.pendingImages = [];
+        this.renderImagePreviews();
+
         // Create assistant message container
         const assistantContainer = this.createAssistantMessageContainer();
 
@@ -430,7 +541,7 @@ class SidePanelApp {
             let responseContent = '';
             let hasThinking = false;
 
-            for await (const chunk of this.chatManager.sendMessage(text, { pageContent })) {
+            for await (const chunk of this.chatManager.sendMessage(text, { pageContent, images })) {
                 if (chunk.thought && chunk.text) {
                     hasThinking = true;
                     thinkingContent += chunk.text;

@@ -22,9 +22,29 @@ export class GeminiBackend extends AIBackend {
      * Build request body
      */
     buildRequestBody(messages, options) {
-        const body = {
-            contents: this.convertMessages(messages)
-        };
+        const contents = this.convertMessages(messages);
+
+        // Add images to the last user message if present
+        if (options.images && options.images.length > 0 && contents.length > 0) {
+            const lastContent = contents[contents.length - 1];
+            if (lastContent.role === 'user') {
+                // Add image parts
+                for (const img of options.images) {
+                    // Extract base64 data from data URL
+                    const base64Data = img.data.split(',')[1];
+                    const mimeType = img.type || 'image/jpeg';
+
+                    lastContent.parts.push({
+                        inlineData: {
+                            mimeType,
+                            data: base64Data
+                        }
+                    });
+                }
+            }
+        }
+
+        const body = { contents };
 
         // System instruction
         if (options.systemPrompt) {
