@@ -705,7 +705,9 @@ class SidePanelApp {
         // Copy button for assistant
         container.querySelector('.copy-button').addEventListener('click', (e) => {
             const responseContent = container.querySelector('.response-content');
-            this.copyMessage(e.currentTarget, responseContent.textContent);
+            // Use original markdown if available, fallback to textContent
+            const content = responseContent.dataset.markdown || responseContent.textContent;
+            this.copyMessage(e.currentTarget, content);
         });
 
         // Toggle thinking visibility
@@ -740,6 +742,7 @@ class SidePanelApp {
         const responseContent = container.querySelector('.response-content');
         if (responseContent) {
             responseContent.innerHTML = markdownToHtml(content);
+            responseContent.dataset.markdown = content; // Store original markdown for copying
         }
         this.scrollToBottom();
     }

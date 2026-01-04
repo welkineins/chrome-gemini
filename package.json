@@ -1,6 +1,6 @@
 {
     "name": "chrome-gemini",
-    "version": "1.4.4",
+    "version": "1.4.5",
     "description": "Chrome extension for chatting with Gemini & OpenAI APIs",
     "type": "module",
     "scripts": {
