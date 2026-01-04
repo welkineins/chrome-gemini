@@ -217,6 +217,10 @@ body {
     word-wrap: break-word;
 }
 
+.message-content:empty {
+    display: none;
+}
+
 .message.user .message-content {
     background: var(--user-bubble);
     color: var(--user-bubble-text);
