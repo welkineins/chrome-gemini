@@ -273,4 +273,153 @@ describe('SettingsManager', () => {
             expect(result.errors.some(e => e.includes('URL'))).toBe(true);
         });
     });
+
+    describe('getDefaults', () => {
+        it('should return a deep copy of default settings', () => {
+            const defaults1 = SettingsManager.getDefaults();
+            const defaults2 = SettingsManager.getDefaults();
+
+            expect(defaults1).toEqual(defaults2);
+            expect(defaults1).not.toBe(defaults2); // Different object references
+            expect(defaults1.gemini).not.toBe(defaults2.gemini);
+            expect(defaults1.gemini.models).not.toBe(defaults2.gemini.models);
+        });
+
+        it('should not be affected by mutations', () => {
+            const defaults1 = SettingsManager.getDefaults();
+            defaults1.gemini.models.push('mutated-model');
+            defaults1.backendType = 'modified';
+
+            const defaults2 = SettingsManager.getDefaults();
+
+            expect(defaults2.backendType).toBe('gemini');
+            expect(defaults2.gemini.models).not.toContain('mutated-model');
+        });
+
+        it('should have all required fields', () => {
+            const defaults = SettingsManager.getDefaults();
+
+            expect(defaults).toHaveProperty('backendType');
+            expect(defaults).toHaveProperty('theme');
+            expect(defaults).toHaveProperty('gemini');
+            expect(defaults).toHaveProperty('openai');
+            expect(defaults).toHaveProperty('currentModel');
+            expect(defaults).toHaveProperty('systemPrompt');
+            expect(defaults).toHaveProperty('enableSearch');
+            expect(defaults).toHaveProperty('includeThinking');
+            expect(defaults).toHaveProperty('autoIncludePage');
+            expect(defaults.gemini).toHaveProperty('apiUrl');
+            expect(defaults.gemini).toHaveProperty('apiKey');
+            expect(defaults.gemini).toHaveProperty('models');
+            expect(defaults.openai).toHaveProperty('apiUrl');
+            expect(defaults.openai).toHaveProperty('apiKey');
+            expect(defaults.openai).toHaveProperty('models');
+        });
+    });
+
+    describe('deepMerge', () => {
+        it('should merge nested objects correctly', () => {
+            const target = { a: 1, b: { c: 2, d: 3 } };
+            const source = { b: { c: 5 }, e: 6 };
+
+            const result = SettingsManager.deepMerge(target, source);
+
+            expect(result).toEqual({ a: 1, b: { c: 5, d: 3 }, e: 6 });
+        });
+
+        it('should not mutate the original objects', () => {
+            const target = { a: 1, b: { c: 2 } };
+            const source = { b: { c: 5 } };
+
+            SettingsManager.deepMerge(target, source);
+
+            expect(target.b.c).toBe(2);
+        });
+
+        it('should handle arrays by replacing them', () => {
+            const target = { models: ['a', 'b'] };
+            const source = { models: ['c', 'd', 'e'] };
+
+            const result = SettingsManager.deepMerge(target, source);
+
+            expect(result.models).toEqual(['c', 'd', 'e']);
+        });
+    });
+
+    describe('integration scenarios', () => {
+        it('should handle full settings lifecycle', async () => {
+            // 1. Load defaults
+            chrome.storage.local.get.mockImplementation((keys, callback) => {
+                callback({});
+            });
+
+            const initial = await SettingsManager.load();
+            expect(initial.backendType).toBe('gemini');
+
+            // 2. Modify and save
+            const modified = { ...initial, backendType: 'openai', systemPrompt: 'Test' };
+            await SettingsManager.save(modified);
+
+            expect(chrome.storage.local.set).toHaveBeenCalledWith(
+                { settings: modified },
+                expect.any(Function)
+            );
+
+            // 3. Load modified settings
+            chrome.storage.local.get.mockImplementation((keys, callback) => {
+                callback({ settings: modified });
+            });
+
+            const loaded = await SettingsManager.load();
+            expect(loaded.backendType).toBe('openai');
+            expect(loaded.systemPrompt).toBe('Test');
+        });
+
+        it('should correctly get backend config after switching backends', () => {
+            const settings = {
+                backendType: 'openai',
+                gemini: { apiUrl: 'gemini-url', apiKey: 'gemini-key', models: ['gmodel'] },
+                openai: { apiUrl: 'openai-url', apiKey: 'openai-key', models: ['omodel'] },
+                currentModel: 'omodel'
+            };
+
+            const config = SettingsManager.getBackendConfig(settings);
+
+            expect(config.apiUrl).toBe('openai-url');
+            expect(config.apiKey).toBe('openai-key');
+            expect(config.models).toEqual(['omodel']);
+        });
+
+        it('should add and remove models correctly', () => {
+            const settings = {
+                backendType: 'gemini',
+                gemini: { models: ['model1', 'model2'] },
+                openai: { models: ['model3'] },
+                currentModel: 'model1'
+            };
+
+            // Add model
+            const afterAdd = SettingsManager.addModel(settings, 'model-new');
+            expect(afterAdd.gemini.models).toContain('model-new');
+            expect(afterAdd.gemini.models).toHaveLength(3);
+
+            // Remove model
+            const afterRemove = SettingsManager.removeModel(afterAdd, 'model1');
+            expect(afterRemove.gemini.models).not.toContain('model1');
+            expect(afterRemove.currentModel).toBe('model2'); // Updated to next model
+        });
+
+        it('should validate model list is not empty after removal', () => {
+            const settings = {
+                backendType: 'gemini',
+                gemini: { apiUrl: 'http://test.com', apiKey: 'key', models: ['only-model'] },
+                currentModel: 'only-model'
+            };
+
+            const afterRemove = SettingsManager.removeModel(settings, 'only-model');
+
+            // Should set currentModel to empty when no models left
+            expect(afterRemove.currentModel).toBe('');
+        });
+    });
 });

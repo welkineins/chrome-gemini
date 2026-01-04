@@ -491,10 +491,10 @@ class SidePanelApp {
     async saveSettings() {
         const backendType = document.querySelector('input[name="backend-type"]:checked').value;
 
-        // Collect model lists from DOM
-        const geminiModels = Array.from(this.elements.geminiModels.querySelectorAll('.model-item span'))
+        // Collect model lists from DOM (only get model names, not drag handles)
+        const geminiModels = Array.from(this.elements.geminiModels.querySelectorAll('.model-item-name'))
             .map(span => span.textContent);
-        const openaiModels = Array.from(this.elements.openaiModels.querySelectorAll('.model-item span'))
+        const openaiModels = Array.from(this.elements.openaiModels.querySelectorAll('.model-item-name'))
             .map(span => span.textContent);
 
         const theme = document.querySelector('input[name="theme"]:checked')?.value || 'auto';
