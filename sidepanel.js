@@ -159,6 +159,16 @@ class SidePanelApp {
         this.elements.cancelSettings.addEventListener('click', () => this.closeSettings());
         this.elements.saveSettings.addEventListener('click', () => this.saveSettings());
 
+        // Reset to default button
+        document.getElementById('reset-settings')?.addEventListener('click', () => this.resetSettings());
+
+        // Theme instant preview
+        this.elements.themeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.applyTheme(e.target.value);
+            });
+        });
+
         // Backend type switching
         this.elements.backendRadios.forEach(radio => {
             radio.addEventListener('change', (e) => this.switchBackendUI(e.target.value));
@@ -357,7 +367,7 @@ class SidePanelApp {
     }
 
     /**
-     * Render model list with reorder buttons
+     * Render model list with drag-and-drop reordering
      */
     renderModelList(backend, models) {
         const container = this.elements[`${backend}Models`];
@@ -366,42 +376,58 @@ class SidePanelApp {
         models.forEach((model, index) => {
             const item = document.createElement('div');
             item.className = 'model-item';
+            item.draggable = true;
+            item.dataset.index = index;
+            item.dataset.backend = backend;
             item.innerHTML = `
+                <span class="model-item-drag">⋮⋮</span>
                 <span class="model-item-name">${model}</span>
-                <div class="model-item-actions">
-                    <button class="move-up-btn" title="Move up" ${index === 0 ? 'disabled' : ''}>↑</button>
-                    <button class="move-down-btn" title="Move down" ${index === models.length - 1 ? 'disabled' : ''}>↓</button>
-                    <button class="delete-btn" title="Remove">×</button>
-                </div>
+                <button class="delete-btn" title="Remove">×</button>
             `;
 
-            item.querySelector('.move-up-btn').addEventListener('click', () => {
-                this.moveModel(backend, index, -1);
+            // Drag events
+            item.addEventListener('dragstart', (e) => {
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', index.toString());
+                item.classList.add('dragging');
             });
-            item.querySelector('.move-down-btn').addEventListener('click', () => {
-                this.moveModel(backend, index, 1);
+
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
             });
+
+            item.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                const dragging = container.querySelector('.dragging');
+                if (dragging && dragging !== item) {
+                    const rect = item.getBoundingClientRect();
+                    const midY = rect.top + rect.height / 2;
+                    if (e.clientY < midY) {
+                        container.insertBefore(dragging, item);
+                    } else {
+                        container.insertBefore(dragging, item.nextSibling);
+                    }
+                }
+            });
+
+            item.addEventListener('drop', (e) => {
+                e.preventDefault();
+                // Reorder based on current DOM order
+                const newOrder = Array.from(container.children).map(
+                    child => models[parseInt(child.dataset.index)]
+                );
+                const settings = { ...this.chatManager.settings };
+                settings[backend].models = newOrder;
+                this.renderModelList(backend, newOrder);
+            });
+
             item.querySelector('.delete-btn').addEventListener('click', () => {
                 this.removeModel(backend, model);
             });
 
             container.appendChild(item);
         });
-    }
-
-    /**
-     * Move model in list
-     */
-    moveModel(backend, index, direction) {
-        const settings = { ...this.chatManager.settings };
-        const models = [...settings[backend].models];
-        const newIndex = index + direction;
-
-        if (newIndex < 0 || newIndex >= models.length) return;
-
-        [models[index], models[newIndex]] = [models[newIndex], models[index]];
-        settings[backend].models = models;
-        this.renderModelList(backend, models);
     }
 
     /**
@@ -443,6 +469,20 @@ class SidePanelApp {
      */
     closeSettings() {
         this.elements.settingsModal.classList.add('hidden');
+        // Restore theme to saved value when canceling
+        this.applyTheme(this.chatManager.settings.theme || 'auto');
+    }
+
+    /**
+     * Reset settings to defaults
+     */
+    async resetSettings() {
+        if (!confirm('Reset all settings to default values?')) return;
+
+        const defaults = SettingsManager.getDefaults();
+        await this.chatManager.updateSettings(defaults);
+        this.updateUIFromSettings(defaults);
+        this.closeSettings();
     }
 
     /**

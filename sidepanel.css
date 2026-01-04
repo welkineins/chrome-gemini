@@ -509,6 +509,8 @@ body {
     cursor: pointer;
     max-width: 140px;
     text-overflow: ellipsis;
+    text-align: right;
+    direction: rtl;
 }
 
 .inline-model-select:focus {
@@ -615,7 +617,23 @@ body {
 .message-actions {
     display: flex;
     gap: 4px;
-    margin-top: 8px;
+    margin-top: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+/* User message: copy button on right */
+.message.user .message-actions {
+    justify-content: flex-end;
+}
+
+/* Assistant message: copy button on left */
+.message.assistant .message-actions {
+    justify-content: flex-start;
 }
 
 .copy-button {
@@ -624,38 +642,47 @@ body {
     background: transparent;
     border: none;
     padding: 4px;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-muted);
     cursor: pointer;
     transition: var(--transition);
 }
 
 .copy-button:hover {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
 }
 
 .copy-button.copied {
     color: var(--success-color);
 }
 
-/* AI message copy button uses different colors */
-.message.assistant .copy-button {
-    color: var(--text-muted);
-}
-
-.message.assistant .copy-button:hover {
-    color: var(--text-primary);
-}
-
 /* Model Reorder Buttons */
 .model-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     background: var(--bg-primary);
     padding: 8px 12px;
     border-radius: var(--radius-sm);
     font-size: 13px;
     gap: 8px;
+    cursor: grab;
+    border: 1px solid transparent;
+    transition: var(--transition);
+}
+
+.model-item:hover {
+    border-color: var(--border-color);
+}
+
+.model-item.dragging {
+    opacity: 0.5;
+    border-color: var(--accent-primary);
+}
+
+.model-item-drag {
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: -2px;
+    cursor: grab;
 }
 
 .model-item-name {
@@ -665,13 +692,7 @@ body {
     white-space: nowrap;
 }
 
-.model-item-actions {
-    display: flex;
-    gap: 4px;
-    flex-shrink: 0;
-}
-
-.model-item-actions button {
+.model-item .delete-btn {
     background: transparent;
     border: none;
     color: var(--text-secondary);
@@ -681,17 +702,10 @@ body {
     line-height: 1;
     opacity: 0.7;
     transition: var(--transition);
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.model-item-actions button:hover {
+.model-item .delete-btn:hover {
     opacity: 1;
-    color: var(--text-primary);
-}
-
-.model-item-actions .delete-btn:hover {
     color: var(--error-color);
 }
 
@@ -783,7 +797,7 @@ body {
 
 .setting-input {
     width: 100%;
-    background: var(--bg-tertiary);
+    background: transparent;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 10px 12px;
@@ -803,7 +817,7 @@ body {
 
 .setting-textarea {
     width: 100%;
-    background: var(--bg-tertiary);
+    background: transparent;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 10px 12px;
@@ -848,7 +862,8 @@ body {
 
 /* Backend Settings */
 .backend-settings {
-    background: var(--bg-tertiary);
+    background: transparent;
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 16px;
     margin-bottom: 20px;

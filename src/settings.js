@@ -33,6 +33,13 @@ export const defaultSettings = {
  */
 export class SettingsManager {
     /**
+     * Get default settings (deep copy)
+     */
+    static getDefaults() {
+        return JSON.parse(JSON.stringify(defaultSettings));
+    }
+
+    /**
      * Deep merge two objects
      */
     static deepMerge(target, source) {
