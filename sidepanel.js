@@ -195,6 +195,15 @@ class SidePanelApp {
             if (e.target === this.elements.settingsModal) this.closeSettings();
         });
 
+        // Quick action buttons
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prompt = btn.dataset.prompt;
+                this.elements.messageInput.value = prompt;
+                this.sendMessage();
+            });
+        });
+
         // Image handling
         this.elements.addImageButton.addEventListener('click', () => {
             this.elements.imageFileInput.click();
