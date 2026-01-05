@@ -780,12 +780,25 @@ class SidePanelApp {
     newChat() {
         this.chatManager.clearConversation();
         this.elements.chatMessages.innerHTML = `
-      <div class="welcome-message">
-        <div class="welcome-icon">✨</div>
-        <h2>Welcome to Gemini Chat</h2>
-        <p>Start a conversation or configure your settings</p>
-      </div>
-    `;
+            <div class="welcome-message">
+                <div class="welcome-icon">✨</div>
+                <h2>Welcome to Gemini Chat</h2>
+                <p>Start a conversation or try one of these:</p>
+                <div class="quick-actions">
+                    <button class="quick-action-btn" data-prompt="Summarize this page">📝 Summarize</button>
+                    <button class="quick-action-btn" data-prompt="Help me understand and learn from this page">📚 Help me learn</button>
+                    <button class="quick-action-btn" data-prompt="Fact-check the claims on this page">🔍 Fact check</button>
+                </div>
+            </div>
+        `;
+        // Rebind quick action buttons
+        this.elements.chatMessages.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prompt = btn.dataset.prompt;
+                this.elements.messageInput.value = prompt;
+                this.sendMessage();
+            });
+        });
     }
 
     /**
