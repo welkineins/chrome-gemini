@@ -787,7 +787,7 @@ class SidePanelApp {
                 <div class="quick-actions">
                     <button class="quick-action-btn" data-prompt="Summarize this page">📝 Summarize</button>
                     <button class="quick-action-btn" data-prompt="Help me understand and learn from this page">📚 Help me learn</button>
-                    <button class="quick-action-btn" data-prompt="Fact-check the claims on this page">🔍 Fact check</button>
+                    <button class="quick-action-btn" data-prompt="Research and fact-check the claims on this page">🔍 Fact check</button>
                 </div>
             </div>
         `;
