@@ -66,11 +66,8 @@ export class OpenAIBackend extends AIBackend {
             stream: true
         };
 
-        // Add tools if enabled (for search/grounding)
-        // Antigravity-Manager translates this to Gemini's googleSearch tool
-        if (options.enableSearch) {
-            body.tools = [{ googleSearch: {} }];
-        }
+        // Note: Web search (grounding) is a Gemini-specific feature
+        // OpenAI API doesn't have an equivalent, so enableSearch is ignored here
 
         return body;
     }

@@ -70,12 +70,12 @@ describe('OpenAIBackend', () => {
             expect(body.stream).toBe(true);
         });
 
-        it('should include tools when enabled and provided', () => {
+        it('should not add tools when enableSearch is true (OpenAI compatibility)', () => {
             const messages = [{ role: 'user', content: 'Hello' }];
             const body = backend.buildRequestBody(messages, { enableSearch: true });
 
-            // Auto-adds googleSearch tool for Antigravity-Manager compatibility
-            expect(body.tools).toEqual([{ googleSearch: {} }]);
+            // Web search is Gemini-specific, so tools should not be added for OpenAI
+            expect(body.tools).toBeUndefined();
         });
     });
 
