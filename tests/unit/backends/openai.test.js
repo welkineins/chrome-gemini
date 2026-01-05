@@ -72,10 +72,10 @@ describe('OpenAIBackend', () => {
 
         it('should include tools when enabled and provided', () => {
             const messages = [{ role: 'user', content: 'Hello' }];
-            const tools = [{ type: 'function', function: { name: 'test' } }];
-            const body = backend.buildRequestBody(messages, { enableSearch: true, tools });
+            const body = backend.buildRequestBody(messages, { enableSearch: true });
 
-            expect(body.tools).toEqual(tools);
+            // Auto-adds googleSearch tool for Antigravity-Manager compatibility
+            expect(body.tools).toEqual([{ googleSearch: {} }]);
         });
     });
 
