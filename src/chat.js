@@ -102,9 +102,15 @@ User Question: ${userMessage}`;
             // Add user message
             this.addMessage('user', content);
 
+            // Build system prompt with context
+            const systemContext = `[System Context: Current datetime is ${new Date().toISOString()}. User's browser language is ${navigator.language || 'en'}.]`;
+            const fullSystemPrompt = this.settings.systemPrompt
+                ? `${systemContext}\n\n${this.settings.systemPrompt}`
+                : systemContext;
+
             // Prepare stream options
             const streamOptions = {
-                systemPrompt: this.settings.systemPrompt,
+                systemPrompt: fullSystemPrompt,
                 enableSearch: this.settings.enableSearch,
                 includeThinking: this.settings.includeThinking,
                 images: options.images || []
