@@ -518,7 +518,7 @@ body {
     border: none;
     border-radius: 16px;
     padding: 6px 24px 6px 12px;
-    color: var(--text-secondary);
+    color: var(--text-muted);
     font-size: 12px;
     cursor: pointer;
     max-width: 160px;
