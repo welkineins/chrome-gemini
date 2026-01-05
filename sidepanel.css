@@ -533,7 +533,6 @@ body {
 
 .inline-model-select:focus {
     outline: none;
-    color: var(--text-secondary);
 }
 
 /* Send Button */
