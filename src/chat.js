@@ -103,7 +103,8 @@ User Question: ${userMessage}`;
             this.addMessage('user', content);
 
             // Build system prompt with context
-            const systemContext = `[System Context: Current datetime is ${new Date().toISOString()}. User's browser language is ${navigator.language || 'en'}.]`;
+            const browserLang = navigator.language || 'en';
+            const systemContext = `[System Context: Current datetime is ${new Date().toISOString()}. User's browser language is ${browserLang}. Always respond in ${browserLang} unless the user explicitly requests another language.]`;
             const fullSystemPrompt = this.settings.systemPrompt
                 ? `${systemContext}\n\n${this.settings.systemPrompt}`
                 : systemContext;
