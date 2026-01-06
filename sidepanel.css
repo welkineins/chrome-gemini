@@ -90,6 +90,7 @@ body {
     flex-direction: column;
     height: 100vh;
     min-width: 280px;
+    overflow-x: hidden;
 }
 
 /* Header */
