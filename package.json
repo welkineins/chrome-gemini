@@ -1,6 +1,6 @@
 {
     "name": "chrome-gemini",
-    "version": "1.5.5",
+    "version": "1.6.0",
     "description": "Chrome extension for chatting with Gemini & OpenAI APIs",
     "type": "module",
     "scripts": {
@@ -11,11 +11,15 @@
         "test:e2e:ui": "playwright test --ui"
     },
     "devDependencies": {
-        "jest": "^29.7.0",
-        "jest-environment-jsdom": "^29.7.0",
-        "@playwright/test": "^1.40.0",
         "@babel/core": "^7.23.0",
         "@babel/preset-env": "^7.23.0",
-        "babel-jest": "^29.7.0"
+        "@playwright/test": "^1.40.0",
+        "babel-jest": "^29.7.0",
+        "jest": "^29.7.0",
+        "jest-environment-jsdom": "^29.7.0"
+    },
+    "dependencies": {
+        "highlight.js": "^11.11.1",
+        "marked": "^17.0.1"
     }
 }

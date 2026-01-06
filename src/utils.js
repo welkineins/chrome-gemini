@@ -1,8 +1,4 @@
 /**
- * Utility functions
- */
-
-/**
  * Escape HTML to prevent XSS
  */
 export function escapeHtml(text) {
@@ -12,12 +8,55 @@ export function escapeHtml(text) {
 }
 
 /**
- * Simple markdown to HTML converter
- * Handles: headers, bold, italic, code, links, lists
+ * Initialize marked.js with highlight.js
+ */
+function initMarked() {
+    if (typeof marked !== 'undefined' && !marked._configured) {
+        marked.setOptions({
+            gfm: true,           // GitHub Flavored Markdown
+            breaks: true,        // Convert \n to <br>
+            highlight: function (code, lang) {
+                if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(code, { language: lang }).value;
+                    } catch (e) {
+                        console.warn('Highlight error:', e);
+                    }
+                }
+                // Fallback to auto-detection or plain
+                if (typeof hljs !== 'undefined') {
+                    try {
+                        return hljs.highlightAuto(code).value;
+                    } catch (e) {
+                        console.warn('Highlight auto error:', e);
+                    }
+                }
+                return escapeHtml(code);
+            }
+        });
+        marked._configured = true;
+    }
+}
+
+/**
+ * Markdown to HTML converter
+ * Uses marked.js for full GFM support including tables, code blocks, etc.
+ * Falls back to simple parser if marked.js not available
  */
 export function markdownToHtml(text) {
     if (!text) return '';
 
+    // Try to use marked.js if available
+    if (typeof marked !== 'undefined') {
+        initMarked();
+        try {
+            return marked.parse(text);
+        } catch (e) {
+            console.warn('Marked parse error, falling back to simple parser:', e);
+        }
+    }
+
+    // Fallback: Simple markdown parser
     let html = escapeHtml(text);
 
     // Code blocks (must be first)
