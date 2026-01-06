@@ -99,7 +99,7 @@ body {
     justify-content: flex-end;
     align-items: center;
     padding: 8px 12px;
-    background: var(--bg-secondary);
+    background: var(--bg-tertiary);
     border-bottom: 1px solid var(--border-color);
 }
 
