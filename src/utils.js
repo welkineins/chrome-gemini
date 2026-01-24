@@ -46,18 +46,22 @@ function initMarked() {
 export function markdownToHtml(text) {
     if (!text) return '';
 
+    // Preprocess: Convert escaped newlines to actual newlines
+    // Some APIs return literal '\n' strings instead of actual newline characters
+    let processedText = text.replace(/\\n/g, '\n');
+
     // Try to use marked.js if available
     if (typeof marked !== 'undefined') {
         initMarked();
         try {
-            return marked.parse(text);
+            return marked.parse(processedText);
         } catch (e) {
             console.warn('Marked parse error, falling back to simple parser:', e);
         }
     }
 
     // Fallback: Simple markdown parser
-    let html = escapeHtml(text);
+    let html = escapeHtml(processedText);
 
     // Code blocks (must be first)
     html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
