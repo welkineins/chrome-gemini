@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Gemini Side Panel",
-    "version": "1.7.1",
+    "version": "1.7.2",
     "description": "Chat with AI in Chrome's side panel - Supports Gemini & OpenAI APIs",
     "permissions": [
         "sidePanel",

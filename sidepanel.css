@@ -1203,3 +1203,13 @@ body {
 .scroll-to-bottom-btn.hidden {
     display: none !important;
 }
+
+/* Stop Button Mode */
+.send-button.stop-mode {
+    color: var(--error-color);
+}
+
+.send-button.stop-mode:hover:not(:disabled) {
+    color: #dc2626;
+    transform: scale(1.1);
+}

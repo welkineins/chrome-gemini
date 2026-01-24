@@ -92,7 +92,8 @@ export class OpenAIBackend extends AIBackend {
         const response = await fetch(url, {
             method: 'POST',
             headers,
-            body: JSON.stringify(body)
+            body: JSON.stringify(body),
+            signal: options.signal
         });
 
         if (!response.ok) {

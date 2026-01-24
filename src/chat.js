@@ -114,7 +114,8 @@ User Question: ${userMessage}`;
                 systemPrompt: fullSystemPrompt,
                 enableSearch: this.settings.enableSearch,
                 includeThinking: this.settings.includeThinking,
-                images: options.images || []
+                images: options.images || [],
+                signal: this.abortController.signal
             };
 
             // Stream the response

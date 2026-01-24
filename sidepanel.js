@@ -577,7 +577,9 @@ class SidePanelApp {
         // Clear input
         this.elements.messageInput.value = '';
         autoResizeTextarea(this.elements.messageInput);
-        this.elements.sendButton.disabled = true;
+
+        // Switch to stop button
+        this.showStopButton();
 
         // Remove welcome message
         const welcome = this.elements.chatMessages.querySelector('.welcome-message');
@@ -627,19 +629,32 @@ class SidePanelApp {
             }
 
         } catch (error) {
-            console.error('Error sending message:', error);
+            // Handle abort gracefully
+            if (error.name === 'AbortError') {
+                console.log('Streaming aborted by user');
+                // Add a note that generation was stopped
+                const responseContent = assistantContainer.querySelector('.response-content');
+                if (responseContent && !responseContent.textContent.trim()) {
+                    responseContent.innerHTML = '<em style="color: var(--text-muted)">⏹️ Generation stopped</em>';
+                }
+            } else {
+                console.error('Error sending message:', error);
 
-            let errorMessage = `Error: ${error.message}`;
-            if (error.message.includes('unregistered callers') || error.message.includes('API key')) {
-                errorMessage += '\n\n💡 Tip: Please check your API Key in settings.';
+                let errorMessage = `Error: ${error.message}`;
+                if (error.message.includes('unregistered callers') || error.message.includes('API key')) {
+                    errorMessage += '\n\n💡 Tip: Please check your API Key in settings.';
+                }
+
+                this.updateResponseContent(assistantContainer, errorMessage);
             }
-
-            this.updateResponseContent(assistantContainer, errorMessage);
         }
 
         // Remove loading indicator
         const loading = assistantContainer.querySelector('.loading-indicator');
         if (loading) loading.remove();
+
+        // Switch back to send button
+        this.showSendButton();
 
         // Scroll to bottom
         this.scrollToBottom();
@@ -859,6 +874,43 @@ class SidePanelApp {
             this.userAtBottom = true;
             this.elements.scrollToBottomBtn.classList.add('hidden');
         }
+    }
+
+    /**
+     * Show stop button (during streaming)
+     */
+    showStopButton() {
+        this.elements.sendButton.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="2"/>
+            </svg>
+        `;
+        this.elements.sendButton.disabled = false;
+        this.elements.sendButton.classList.add('stop-mode');
+        this.elements.sendButton.title = 'Stop generation';
+        this.elements.sendButton.onclick = () => this.stopStreaming();
+    }
+
+    /**
+     * Show send button (default state)
+     */
+    showSendButton() {
+        this.elements.sendButton.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+        `;
+        this.elements.sendButton.disabled = !this.elements.messageInput.value.trim();
+        this.elements.sendButton.classList.remove('stop-mode');
+        this.elements.sendButton.title = 'Send message';
+        this.elements.sendButton.onclick = null; // Remove stop handler
+    }
+
+    /**
+     * Stop current streaming
+     */
+    stopStreaming() {
+        this.chatManager.stopStreaming();
     }
 }
 
