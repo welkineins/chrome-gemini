@@ -234,6 +234,7 @@ body {
 .message.assistant {
     align-self: flex-start;
     align-items: flex-start;
+    min-width: 280px;
 }
 
 .message-content {

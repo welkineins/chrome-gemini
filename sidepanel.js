@@ -777,13 +777,16 @@ class SidePanelApp {
         const thinkingContent = container.querySelector('.thinking-content');
         const thinkingPreview = container.querySelector('.thinking-preview');
 
+        // Convert escaped newlines to actual newlines
+        const processedContent = content.replace(/\\n/g, '\n');
+
         if (thinkingContent) {
-            thinkingContent.innerHTML = markdownToHtml(content);
+            thinkingContent.innerHTML = markdownToHtml(processedContent);
         }
 
-        // Update preview with last 2 lines
-        if (thinkingPreview && content) {
-            const lines = content.trim().split('\n').filter(line => line.trim());
+        // Update preview with last 2 lines (only if thinking content is hidden)
+        if (thinkingPreview && processedContent && thinkingContent?.classList.contains('hidden')) {
+            const lines = processedContent.trim().split('\n').filter(line => line.trim());
             const lastTwoLines = lines.slice(-2).join('\n');
             thinkingPreview.textContent = lastTwoLines || '';
         }
@@ -800,6 +803,13 @@ class SidePanelApp {
             responseContent.innerHTML = markdownToHtml(content);
             responseContent.dataset.markdown = content; // Store original markdown for copying
         }
+
+        // Hide thinking preview once response starts (if still collapsed)
+        const thinkingPreview = container.querySelector('.thinking-preview');
+        if (thinkingPreview) {
+            thinkingPreview.classList.add('hidden');
+        }
+
         this.scrollToBottom();
     }
 
