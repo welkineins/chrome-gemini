@@ -234,7 +234,7 @@ body {
 .message.assistant {
     align-self: flex-start;
     align-items: flex-start;
-    min-width: 280px;
+    width: 85%;
 }
 
 .message-content {
@@ -285,6 +285,10 @@ body {
 
 .thinking-toggle:hover {
     background: rgba(124, 58, 237, 0.15);
+}
+
+.thinking-toggle:focus {
+    outline: none;
 }
 
 .thinking-toggle .chevron {

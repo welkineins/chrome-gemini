@@ -788,7 +788,7 @@ class SidePanelApp {
         if (thinkingPreview && processedContent && thinkingContent?.classList.contains('hidden')) {
             const lines = processedContent.trim().split('\n').filter(line => line.trim());
             const lastTwoLines = lines.slice(-2).join('\n');
-            thinkingPreview.textContent = lastTwoLines || '';
+            thinkingPreview.innerHTML = markdownToHtml(lastTwoLines) || '';
         }
 
         this.scrollToBottom();
