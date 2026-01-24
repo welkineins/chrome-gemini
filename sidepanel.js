@@ -11,6 +11,7 @@ class SidePanelApp {
         this.elements = {};
         this.currentPageInfo = null;
         this.pendingImages = []; // Store images to be sent with message
+        this.userAtBottom = true; // Track if user is at bottom for smart auto-scroll
     }
 
     /**
@@ -241,6 +242,11 @@ class SidePanelApp {
                 const files = imageItems.map(item => item.getAsFile());
                 this.handleImageFiles(files);
             }
+        });
+
+        // Track scroll position for smart auto-scroll
+        this.elements.chatMessages.addEventListener('scroll', () => {
+            this.updateUserAtBottom();
         });
     }
 
@@ -655,7 +661,7 @@ class SidePanelApp {
         });
 
         this.elements.chatMessages.appendChild(message);
-        this.scrollToBottom();
+        this.scrollToBottom(true); // Force scroll when user sends a message
     }
 
     /**
@@ -728,7 +734,7 @@ class SidePanelApp {
         });
 
         this.elements.chatMessages.appendChild(container);
-        this.scrollToBottom();
+        this.scrollToBottom(true); // Force scroll when creating new response container
 
         return container;
     }
@@ -802,10 +808,23 @@ class SidePanelApp {
     }
 
     /**
-     * Scroll chat to bottom
+     * Check if user is at or near the bottom of the chat
      */
-    scrollToBottom() {
-        this.elements.chatMessages.scrollTop = this.elements.chatMessages.scrollHeight;
+    updateUserAtBottom() {
+        const el = this.elements.chatMessages;
+        // Consider "at bottom" if within 50px of the bottom
+        const threshold = 50;
+        this.userAtBottom = (el.scrollHeight - el.scrollTop - el.clientHeight) <= threshold;
+    }
+
+    /**
+     * Scroll chat to bottom (only if user was already at bottom)
+     */
+    scrollToBottom(force = false) {
+        if (force || this.userAtBottom) {
+            this.elements.chatMessages.scrollTop = this.elements.chatMessages.scrollHeight;
+            this.userAtBottom = true;
+        }
     }
 }
 
