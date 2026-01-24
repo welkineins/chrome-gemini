@@ -123,7 +123,10 @@ class SidePanelApp {
             inputBox: document.querySelector('.input-box'),
             addImageButton: document.getElementById('add-image-button'),
             imageFileInput: document.getElementById('image-file-input'),
-            imagePreviewArea: document.getElementById('image-preview-area')
+            imagePreviewArea: document.getElementById('image-preview-area'),
+
+            // Scroll to bottom
+            scrollToBottomBtn: document.getElementById('scroll-to-bottom')
         };
     }
 
@@ -247,6 +250,11 @@ class SidePanelApp {
         // Track scroll position for smart auto-scroll
         this.elements.chatMessages.addEventListener('scroll', () => {
             this.updateUserAtBottom();
+        });
+
+        // Scroll to bottom button click
+        this.elements.scrollToBottomBtn.addEventListener('click', () => {
+            this.scrollToBottom(true);
         });
     }
 
@@ -815,6 +823,13 @@ class SidePanelApp {
         // Consider "at bottom" if within 50px of the bottom
         const threshold = 50;
         this.userAtBottom = (el.scrollHeight - el.scrollTop - el.clientHeight) <= threshold;
+
+        // Show/hide scroll to bottom button
+        if (this.userAtBottom) {
+            this.elements.scrollToBottomBtn.classList.add('hidden');
+        } else {
+            this.elements.scrollToBottomBtn.classList.remove('hidden');
+        }
     }
 
     /**
@@ -824,6 +839,7 @@ class SidePanelApp {
         if (force || this.userAtBottom) {
             this.elements.chatMessages.scrollTop = this.elements.chatMessages.scrollHeight;
             this.userAtBottom = true;
+            this.elements.scrollToBottomBtn.classList.add('hidden');
         }
     }
 }

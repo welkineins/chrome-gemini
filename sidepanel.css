@@ -1148,3 +1148,35 @@ body {
 .hidden {
     display: none !important;
 }
+
+/* Scroll to Bottom Button */
+.scroll-to-bottom-btn {
+    position: fixed;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 100;
+    opacity: 0.9;
+}
+
+.scroll-to-bottom-btn:hover {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.1);
+    box-shadow: var(--shadow-lg);
+}
+
+.scroll-to-bottom-btn.hidden {
+    display: none !important;
+}
