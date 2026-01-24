@@ -705,8 +705,9 @@ class SidePanelApp {
             <div class="thinking-section">
                 <button class="thinking-toggle collapsed">
                     <span class="chevron">▼</span>
-                    <span>Thinking...</span>
+                    <span class="thinking-label">Thinking...</span>
                 </button>
+                <div class="thinking-preview"></div>
                 <div class="thinking-content hidden"></div>
             </div>
             <div class="response-content message-content"></div>
@@ -736,9 +737,16 @@ class SidePanelApp {
         // Toggle thinking visibility
         const toggle = container.querySelector('.thinking-toggle');
         const thinkingContent = container.querySelector('.thinking-content');
+        const thinkingPreview = container.querySelector('.thinking-preview');
         toggle.addEventListener('click', () => {
             toggle.classList.toggle('collapsed');
             thinkingContent.classList.toggle('hidden');
+            // Hide preview when expanded
+            if (thinkingContent.classList.contains('hidden')) {
+                thinkingPreview.classList.remove('hidden');
+            } else {
+                thinkingPreview.classList.add('hidden');
+            }
         });
 
         this.elements.chatMessages.appendChild(container);
@@ -752,9 +760,19 @@ class SidePanelApp {
      */
     updateThinkingSection(container, content) {
         const thinkingContent = container.querySelector('.thinking-content');
+        const thinkingPreview = container.querySelector('.thinking-preview');
+
         if (thinkingContent) {
             thinkingContent.innerHTML = markdownToHtml(content);
         }
+
+        // Update preview with last 2 lines
+        if (thinkingPreview && content) {
+            const lines = content.trim().split('\n').filter(line => line.trim());
+            const lastTwoLines = lines.slice(-2).join('\n');
+            thinkingPreview.textContent = lastTwoLines || '';
+        }
+
         this.scrollToBottom();
     }
 
