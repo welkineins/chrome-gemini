@@ -104,7 +104,26 @@ export class OpenAIBackend extends AIBackend {
             const data = this.parseSSELine(line);
             if (!data) continue;
 
-            // Handle choices
+            // Handle Anthropic Claude's extended thinking format
+            // Anthropic sends thinking content via content_block_delta with type 'thinking_delta' or 'text_delta'
+            if (data.type === 'content_block_delta') {
+                if (data.delta?.type === 'thinking_delta') {
+                    yield {
+                        text: data.delta.thinking,
+                        thought: true
+                    };
+                    continue;
+                }
+                if (data.delta?.type === 'text_delta') {
+                    yield {
+                        text: data.delta.text,
+                        thought: false
+                    };
+                    continue;
+                }
+            }
+
+            // Handle OpenAI-compatible format (choices array)
             const choice = data.choices?.[0];
             if (!choice?.delta) continue;
 
